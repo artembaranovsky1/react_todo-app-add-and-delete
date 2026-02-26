@@ -1,6 +1,7 @@
 import { addTodo } from '../api/todos';
 import React, { useEffect, useRef } from 'react';
 import { Todo } from '../types/Todo';
+import { ErrorType } from '../enums/error';
 
 type Props = {
   todos: Todo[];
@@ -39,12 +40,12 @@ export const SearchBar: React.FC<Props> = ({
 
   const handleSubmit = event => {
     event.preventDefault();
-    setHasError('');
+    setHasError(ErrorType.RESET_ERROR);
 
     const trimmedQuery = query.trim();
 
     if (trimmedQuery.length === 0) {
-      setHasError('Title should not be empty');
+      setHasError(ErrorType.TITLE_IS_EMPTY);
 
       return;
     }
@@ -66,7 +67,7 @@ export const SearchBar: React.FC<Props> = ({
         setQuery('');
       })
       .catch(() => {
-        setHasError('Unable to add a todo');
+        setHasError(ErrorType.ADD);
       })
       .finally(() => {
         setLoadingInput(false);
@@ -78,6 +79,14 @@ export const SearchBar: React.FC<Props> = ({
     (todo: Todo) => todo.completed,
   ).length;
 
+  const changeStatusToglleAllButton = () => {
+    if (todoComletedLength !== todos.length) {
+      setPressButtonToggleAll(true);
+    } else {
+      setPressButtonToggleAll(false);
+    }
+  }
+
   return (
     <header className="todoapp__header">
       {todos.length > 0 && (
@@ -85,13 +94,7 @@ export const SearchBar: React.FC<Props> = ({
           type="button"
           className={`todoapp__toggle-all ${todoComletedLength === todos.length ? 'active' : ''}`}
           data-cy="ToggleAllButton"
-          onClick={() => {
-            if (todoComletedLength !== todos.length) {
-              setPressButtonToggleAll(true);
-            } else {
-              setPressButtonToggleAll(false);
-            }
-          }}
+          onClick={changeStatusToglleAllButton}
         />
       )}
       <form onSubmit={handleSubmit}>
@@ -105,7 +108,7 @@ export const SearchBar: React.FC<Props> = ({
           value={query}
           onChange={e => {
             setQuery(e.target.value);
-            setHasError('');
+            setHasError(ErrorType.RESET_ERROR);
           }}
         />
       </form>

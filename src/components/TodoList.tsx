@@ -2,6 +2,7 @@ import { Todo } from '../types/Todo';
 import { deleteTodo, updateTodo } from '../api/todos';
 import React, { useEffect, useState } from 'react';
 import changeStatusCompleteTodo from '../service/changeStatus';
+import { ErrorType } from '../enums/error';
 
 type Props = {
   todos: Todo[];
@@ -74,7 +75,7 @@ export const TodoList: React.FC<Props> = ({
         })
 
         .catch((error: Error) => {
-          setHasError('Unable to delete a todo');
+          setHasError(ErrorType.DELETE);
 
           throw error;
         })
@@ -92,16 +93,26 @@ export const TodoList: React.FC<Props> = ({
       .then((updated: Todo) => {
         setTodos(prev => prev.map(t => (t.id === editingId ? updated : t)));
 
-        setEditingId(null); // ✅ закриваємо форму ТІЛЬКИ на success
+        setEditingId(null);
       })
       .catch((error: Error) => {
-        setHasError('Unable to update a todo');
+        setHasError(ErrorType.UPDATE);
         throw error;
       })
       .finally(() => {
         setLoading(prev => prev.filter(id => id !== currentTodo.id));
       });
   };
+
+  const handleUpdateBlur = () => {
+    const currentTodo = todos.find(t => t.id === editingId);
+
+    if (editingId === currentTodo.id) {
+      handleUpdateSubmit({
+        preventDefault: () => {},
+      } as React.FormEvent);
+    }
+  }
 
   useEffect(() => {
     if (pressButtonToggleAll === null) {
@@ -188,7 +199,7 @@ export const TodoList: React.FC<Props> = ({
                       })
 
                       .catch((error: Error) => {
-                        setHasError('Unable to delete a todo');
+                        setHasError(ErrorType.DELETE);
 
                         throw error;
                       })
@@ -198,7 +209,7 @@ export const TodoList: React.FC<Props> = ({
                       });
                   }}
                 >
-                  × {todo.id}
+                  ×
                 </button>
               </>
             ) : (
@@ -211,13 +222,7 @@ export const TodoList: React.FC<Props> = ({
                   className="todo__title-field"
                   placeholder="Empty todo will be deleted"
                   defaultValue={updatedTitle}
-                  onBlur={() => {
-                    if (editingId === todo.id) {
-                      handleUpdateSubmit({
-                        preventDefault: () => {},
-                      } as React.FormEvent);
-                    }
-                  }}
+                  onBlur={handleUpdateBlur}
                   onChange={e => setUpdateTitle(e.target.value)}
                 />
               </form>

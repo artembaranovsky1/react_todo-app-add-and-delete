@@ -5,6 +5,7 @@ import { Todo } from './types/Todo';
 import Footer from './components/Footer';
 import { TodoList } from './components/TodoList';
 import SearchBar from './components/SearchBar';
+import { ErrorType } from './enums/error';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -34,7 +35,7 @@ export const App: React.FC = () => {
     getTodos()
       .then(setTodos)
       .catch(error => {
-        setHasError('Unable to load todos');
+        setHasError(ErrorType.LOADING);
 
         throw error;
       });
@@ -94,7 +95,7 @@ export const App: React.FC = () => {
           data-cy="HideErrorButton"
           type="button"
           className="delete"
-          onClick={() => setHasError('')}
+          onClick={() => setHasError(ErrorType.RESET_ERROR)}
         />
         {hasError}
       </div>

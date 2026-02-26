@@ -1,6 +1,7 @@
 import { Todo } from '../types/Todo';
 import { updateTodo } from '../api/todos';
 import React from 'react';
+import { ErrorType } from '../enums/error';
 
 type Props = {
   todo: Todo;
@@ -24,7 +25,7 @@ const changeStatusCompleteTodo = ({
       setTodos(prev => prev.map(t => (t.id === todo.id ? updatedTodo : t)));
     })
     .catch(() => {
-      setHasError('Unable to update a todo');
+      setHasError(ErrorType.UPDATE);
     })
     .finally(() => {
       setLoading(prev => prev.filter(id => id !== todo.id));

@@ -1,6 +1,7 @@
 import { Todo } from '../types/Todo';
 import React from 'react';
 import { deleteTodo } from '../api/todos';
+import { ErrorType } from '../enums/error';
 
 type Props = {
   todos: Todo[];
@@ -96,7 +97,7 @@ export const Footer: React.FC<Props> = ({
               );
 
               if (failed) {
-                setHasError('Unable to delete a todo');
+                setHasError(ErrorType.DELETE);
               }
             })
             .finally(() => {
